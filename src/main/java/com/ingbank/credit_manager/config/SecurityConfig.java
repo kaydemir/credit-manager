@@ -20,7 +20,7 @@ public class SecurityConfig {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/api/v1/loans/**").hasRole("ADMIN")
-                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/h2-console/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 ).headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .httpBasic(Customizer.withDefaults())

@@ -1,22 +1,14 @@
-# Loan Manager
+# Credit Manager
 
 This document covers installation and operation guide for Credit Manager project.
 
 ## Overview
-The Loan Manager is a RESTful web application designed for managing loans for customers. The system supports creating, listing, and managing loans and loan installments with role-based authorization for `ADMIN` and `CUSTOMER` users.
+The Credit Manager is a RESTful web application designed for managing loans, generates loan installments for customers.
 
+The system supports creating, listing, and managing loans and loan installments with role-based authorization for `ADMIN` and `CUSTOMER` users.
+Prevents customers from exceeding their credit limit
 - **ADMIN** users can manage all customers and loans.
 - **CUSTOMER** users can only manage their own loans.
-
----
-
-## Features
-- **Loan Manager**: Create, list, and view loans.
-- **Installment Manager**: Automatically generate loan installments.
-- **Role-Based Authorization**:
-    - `ADMIN` users can perform operations for all customers.
-    - `CUSTOMER` users can only access their data.
-- **Validation**: Prevents customers from exceeding their credit limit.
 
 ---
 
@@ -50,8 +42,8 @@ The application will start on `http://localhost:8080`.
 The application uses an in-memory H2 database. To access the H2 console:
 - URL: `http://localhost:8080/h2-console`
 - JDBC URL: `jdbc:h2:mem:credit_manager`
-- Username: `sa`
-- Password: `password`
+- Username: `prod`
+- Password: `prod`
 
 ---
 
@@ -295,7 +287,6 @@ The application uses role-based security:
 
 ### Security Configuration
 The `SecurityConfig` class defines the access rules for endpoints:
-- `/api/v1/admin/**` → Accessible only by `ADMIN`
-- `/api/v1/customers/**` → Accessible only by `CUSTOMER`
+- `/api/v1/loans/**` → Accessible only by `ADMIN`, not accessible by `CUSTOMER`
 
 ---
