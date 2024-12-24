@@ -1,5 +1,20 @@
 package com.ingbank.credit_manager.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Objects;
+
 import com.ingbank.credit_manager.beans.PaymentResult;
 import com.ingbank.credit_manager.entity.Loan;
 import com.ingbank.credit_manager.exception.CustomerCreditLimitExceededException;
@@ -11,26 +26,23 @@ import com.ingbank.credit_manager.request.PayLoanRequest;
 import com.ingbank.credit_manager.response.CreateLoanResponse;
 import com.ingbank.credit_manager.response.PayLoanResponse;
 import com.ingbank.credit_manager.service.LoanService;
+import com.ingbank.credit_manager.util.AuthorizationComponent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Objects;
+import org.springframework.security.core.Authentication;
 
 class LoanControllerTest {
 
     @Mock
     private LoanService loanService;
+
+    @Mock
+    AuthorizationComponent authorizationComponent;
 
     @InjectMocks
     private LoanController subject;
@@ -51,8 +63,9 @@ class LoanControllerTest {
         mockLoan.setId(1L);
 
         when(loanService.createLoan(any(CreateLoanRequest.class))).thenReturn(mockLoan);
-
-        ResponseEntity<CreateLoanResponse> response = subject.createLoan(createLoanRequest);
+        Authentication mockAuth = mock(Authentication.class);
+        when(mockAuth.getName()).thenReturn("admin");
+        ResponseEntity<CreateLoanResponse> response = subject.createLoan(createLoanRequest, mockAuth);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -61,10 +74,12 @@ class LoanControllerTest {
 
     @Test
     void testCreateLoanWhenCreditLimitExceeded() {
+        Authentication mockAuth = mock(Authentication.class);
+        when(mockAuth.getName()).thenReturn("admin");
         when(loanService.createLoan(any(CreateLoanRequest.class)))
                 .thenThrow(new CustomerCreditLimitExceededException("Credit limit exceeded"));
 
-        ResponseEntity<CreateLoanResponse> response = subject.createLoan(createLoanRequest);
+        ResponseEntity<CreateLoanResponse> response = subject.createLoan(createLoanRequest, mockAuth);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertTrue(response.getBody().getErrorMessage().contains("Credit limit exceeded"));
@@ -75,9 +90,11 @@ class LoanControllerTest {
         Loan mockLoan = new Loan();
         mockLoan.setId(1L);
 
+        Authentication mockAuth = mock(Authentication.class);
+        when(mockAuth.getName()).thenReturn("admin");
         when(loanService.listLoans(anyLong(), anyInt(), anyBoolean())).thenReturn(List.of(mockLoan));
 
-        ResponseEntity<List<Loan>> response = subject.listLoans(1L, 10, true);
+        ResponseEntity<List<Loan>> response = subject.listLoans(1L, 10, true, mockAuth);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertFalse(Objects.requireNonNull(response.getBody()).isEmpty());

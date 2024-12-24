@@ -287,6 +287,8 @@ The application uses role-based security:
 
 ### Security Configuration
 The `SecurityConfig` class defines the access rules for endpoints:
-- `/api/v1/loans/**` → Accessible only by `ADMIN`, not accessible by `CUSTOMER`
+- `/api/v1/loans/**` → Accessible both `ADMIN`, and `CUSTOMER` roles
+- **ADMIN** users can manage all customers and loans.
+- **CUSTOMER** users can only manage their own loans.
 
 ---

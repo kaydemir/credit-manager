@@ -28,7 +28,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"customerId\": 2,\n    \"amount\": 10000.00,\n    \"interestRate\": 0.5,\n    \"installments\": 6\n}",
+					"raw": "{\n    \"customerId\": 1,\n    \"amount\": 10000.00,\n    \"interestRate\": 0.5,\n    \"installments\": 6\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -97,7 +97,7 @@
 					"variable": [
 						{
 							"key": "customerId",
-							"value": "2"
+							"value": "1"
 						}
 					]
 				}
