@@ -3,8 +3,11 @@ package com.ingbank.credit_manager.controller;
 import java.util.List;
 
 import com.ingbank.credit_manager.constants.CreditManagerConstants;
+import com.ingbank.credit_manager.entity.Loan;
 import com.ingbank.credit_manager.entity.LoanInstallment;
 import com.ingbank.credit_manager.service.LoanInstallmentService;
+import com.ingbank.credit_manager.service.LoanService;
+import com.ingbank.credit_manager.util.AuthorizationComponent;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -12,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,10 +27,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class LoanInstallmentController {
 
     private final LoanInstallmentService loanInstallmentService;
+    private final LoanService loanService;
+    private final AuthorizationComponent authorizationComponent;
 
     @Autowired
-    public LoanInstallmentController(LoanInstallmentService loanInstallmentService) {
+    public LoanInstallmentController(LoanInstallmentService loanInstallmentService,
+                                     LoanService loanService,
+                                     AuthorizationComponent authorizationComponent) {
         this.loanInstallmentService = loanInstallmentService;
+        this.loanService = loanService;
+        this.authorizationComponent = authorizationComponent;
         log.trace("{} initialized", this.getClass().getName());
     }
 
@@ -38,7 +48,10 @@ public class LoanInstallmentController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error")
     })
-    public ResponseEntity<List<LoanInstallment>> listInstallmentsByLoanId(@PathVariable Long loanId) {
+    public ResponseEntity<List<LoanInstallment>> listInstallmentsByLoanId(@PathVariable Long loanId,
+                                                                          Authentication authentication) {
+        Loan loan = loanService.findById(loanId);
+        authorizationComponent.checkAccess(loan.getCustomer().getId(), authentication);
         log.debug("GET /api/v1/loans/installments/{loanId}: listInstallmentsByLoanId({})", loanId);
         List<LoanInstallment> loanInstallments = loanInstallmentService.listInstallmentsByLoanId(loanId);
         log.debug("GET /api/v1/loans/installments/{loanId}: " + CreditManagerConstants.RETURNING_RESPONSE, loanInstallments);

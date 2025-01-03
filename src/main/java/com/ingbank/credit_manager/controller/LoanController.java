@@ -111,7 +111,10 @@ public class LoanController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error")
     })
-    public ResponseEntity<PayLoanResponse> payLoan(@Valid @NotNull @RequestBody PayLoanRequest request) {
+    public ResponseEntity<PayLoanResponse> payLoan(@Valid @NotNull @RequestBody PayLoanRequest request,
+                                                   Authentication authentication) {
+        Loan loan = loanService.findById(request.getLoanId());
+        authorizationComponent.checkAccess(loan.getCustomer().getId(), authentication);
         PayLoanResponse response;
         PayLoanResponse.PayLoanResponseBuilder builder = PayLoanResponse.builder();
         try {

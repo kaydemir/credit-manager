@@ -8,8 +8,8 @@ VALUES (1, 'John', 'Doe', 10000.00, 0.00);
 
 INSERT INTO app_user (id, username, password, customer_id)
 VALUES
-    (1, 'admin', 'admin', NULL),
-    (2, 'customer', 'customer', 1);
+    (1, 'admin', '$2a$10$3dRjC2uSG19xx0hSEc3oNuZKmAmVgvLcXVOIe4Xa8JAsp05K/x.oO', NULL),
+    (2, 'customer', '$2a$10$hSMAdB/P1GIveeNO3WzI.uRUwQzMnbCQPY5s4FdqqUivbWd2neXJK', 1);
 
     INSERT INTO app_user_roles (user_id, role)
 VALUES

@@ -12,4 +12,5 @@ public interface LoanService {
     List<Loan> listLoans(Long customerId);
     List<Loan> listLoans(Long customerId, Integer numberOfInstallments, Boolean isPaid);
     PaymentResult payLoan(PayLoanRequest request);
+    Loan findById(Long loanId);
 }

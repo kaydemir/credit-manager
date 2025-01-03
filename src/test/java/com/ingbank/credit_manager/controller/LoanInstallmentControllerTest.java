@@ -3,6 +3,7 @@ package com.ingbank.credit_manager.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,19 +12,30 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
+import com.ingbank.credit_manager.entity.Customer;
+import com.ingbank.credit_manager.entity.Loan;
 import com.ingbank.credit_manager.entity.LoanInstallment;
 import com.ingbank.credit_manager.service.LoanInstallmentService;
+import com.ingbank.credit_manager.service.LoanService;
+import com.ingbank.credit_manager.util.AuthorizationComponent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 
 class LoanInstallmentControllerTest {
 
     @Mock
     private LoanInstallmentService loanInstallmentService;
+
+    @Mock
+    private LoanService loanService;
+
+    @Mock
+    AuthorizationComponent authorizationComponent;
 
     @InjectMocks
     private LoanInstallmentController loanInstallmentController;
@@ -47,8 +59,13 @@ class LoanInstallmentControllerTest {
     void testListInstallmentsByLoanId() {
         List<LoanInstallment> mockInstallments = Arrays.asList(loanInstallment1, loanInstallment2);
         when(loanInstallmentService.listInstallmentsByLoanId(1L)).thenReturn(mockInstallments);
-
-        ResponseEntity<List<LoanInstallment>> response = loanInstallmentController.listInstallmentsByLoanId(1L);
+        Loan loan = new Loan();
+        loan.setId(1L);
+        loan.setCustomer(new Customer());
+        when(loanService.findById(1L)).thenReturn(loan);
+        Authentication mockAuth = mock(Authentication.class);
+        when(mockAuth.getName()).thenReturn("admin");
+        ResponseEntity<List<LoanInstallment>> response = loanInstallmentController.listInstallmentsByLoanId(1L, mockAuth);
 
         assertNotNull(response.getBody());
         assertEquals(2, response.getBody().size());
@@ -62,7 +79,13 @@ class LoanInstallmentControllerTest {
     void testListInstallmentsByLoanIdWhenNoInstallmentsFound() {
         when(loanInstallmentService.listInstallmentsByLoanId(1L)).thenReturn(List.of());
 
-        ResponseEntity<List<LoanInstallment>> response = loanInstallmentController.listInstallmentsByLoanId(1L);
+        Loan loan = new Loan();
+        loan.setId(1L);
+        loan.setCustomer(new Customer());
+        when(loanService.findById(1L)).thenReturn(loan);
+        Authentication mockAuth = mock(Authentication.class);
+        when(mockAuth.getName()).thenReturn("admin");
+        ResponseEntity<List<LoanInstallment>> response = loanInstallmentController.listInstallmentsByLoanId(1L, mockAuth);
 
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isEmpty());

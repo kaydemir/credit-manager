@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.ingbank.credit_manager.beans.PaymentResult;
+import com.ingbank.credit_manager.entity.Customer;
 import com.ingbank.credit_manager.entity.Loan;
 import com.ingbank.credit_manager.exception.CustomerCreditLimitExceededException;
 import com.ingbank.credit_manager.exception.LoanInstallmentsMoreThan3MonthsCannotBePaidException;
@@ -105,8 +106,13 @@ class LoanControllerTest {
         PaymentResult paymentResult = PaymentResult.builder().loanFullyPaid(true).build();
 
         when(loanService.payLoan(any(PayLoanRequest.class))).thenReturn(paymentResult);
-
-        ResponseEntity<PayLoanResponse> response = subject.payLoan(payLoanRequest);
+        Loan loan = new Loan();
+        loan.setId(1L);
+        loan.setCustomer(new Customer());
+        when(loanService.findById(1L)).thenReturn(loan);
+        Authentication mockAuth = mock(Authentication.class);
+        when(mockAuth.getName()).thenReturn("admin");
+        ResponseEntity<PayLoanResponse> response = subject.payLoan(payLoanRequest, mockAuth);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(Objects.requireNonNull(response.getBody()).getPaymentResult().isLoanFullyPaid());
@@ -116,8 +122,13 @@ class LoanControllerTest {
     void testPayLoanWhenLoanISAlreadyFullyPaid() {
         when(loanService.payLoan(any(PayLoanRequest.class)))
                 .thenThrow(new LoanIsAlreadyFullyPaidException("Loan is already fully paid"));
-
-        ResponseEntity<PayLoanResponse> response = subject.payLoan(payLoanRequest);
+        Loan loan = new Loan();
+        loan.setId(1L);
+        loan.setCustomer(new Customer());
+        when(loanService.findById(1L)).thenReturn(loan);
+        Authentication mockAuth = mock(Authentication.class);
+        when(mockAuth.getName()).thenReturn("admin");
+        ResponseEntity<PayLoanResponse> response = subject.payLoan(payLoanRequest, mockAuth);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertTrue(Objects.requireNonNull(response.getBody()).getErrorMessage().contains("Loan is already fully paid"));
@@ -127,8 +138,13 @@ class LoanControllerTest {
     void testPayLoanInstallmentsMoreThan3Months() {
         when(loanService.payLoan(any(PayLoanRequest.class)))
                 .thenThrow(new LoanInstallmentsMoreThan3MonthsCannotBePaidException("Installments cannot be paid"));
-
-        ResponseEntity<PayLoanResponse> response = subject.payLoan(payLoanRequest);
+        Loan loan = new Loan();
+        loan.setId(1L);
+        loan.setCustomer(new Customer());
+        when(loanService.findById(1L)).thenReturn(loan);
+        Authentication mockAuth = mock(Authentication.class);
+        when(mockAuth.getName()).thenReturn("admin");
+        ResponseEntity<PayLoanResponse> response = subject.payLoan(payLoanRequest, mockAuth);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertTrue(Objects.requireNonNull(response.getBody()).getErrorMessage().contains("Installments cannot be paid"));
@@ -138,8 +154,13 @@ class LoanControllerTest {
     void testPayLoanWhenLoanNotFound() {
         when(loanService.payLoan(any(PayLoanRequest.class)))
                 .thenThrow(new NotFoundException("Loan not found"));
-
-        ResponseEntity<PayLoanResponse> response = subject.payLoan(payLoanRequest);
+        Loan loan = new Loan();
+        loan.setId(1L);
+        loan.setCustomer(new Customer());
+        when(loanService.findById(1L)).thenReturn(loan);
+        Authentication mockAuth = mock(Authentication.class);
+        when(mockAuth.getName()).thenReturn("admin");
+        ResponseEntity<PayLoanResponse> response = subject.payLoan(payLoanRequest, mockAuth);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertTrue(Objects.requireNonNull(response.getBody()).getErrorMessage().contains("Loan not found"));

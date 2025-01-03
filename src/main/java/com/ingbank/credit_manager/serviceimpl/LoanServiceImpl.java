@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import com.ingbank.credit_manager.beans.PaymentResult;
 import com.ingbank.credit_manager.entity.Customer;
@@ -135,5 +136,14 @@ public class LoanServiceImpl implements LoanService {
         loanInstallmentService.saveAllLoanInstallments(installmentsUnpaidNext3Months);
 
         return PaymentResult.builder().installmentsPaid(installmentsPaid).totalAmountSpent(totalAmountSpent).loanFullyPaid(loanFullyPaid).build();
+    }
+
+    @Override
+    public Loan findById(Long loanId) {
+        Optional<Loan> optionalLoan = loanRepository.findById(loanId);
+        if (optionalLoan.isPresent()) {
+            return optionalLoan.get();
+        }
+        throw new NotFoundException("Loan not found with request loanId: " + loanId);
     }
 }
