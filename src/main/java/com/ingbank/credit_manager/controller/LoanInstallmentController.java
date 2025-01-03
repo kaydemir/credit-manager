@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,10 +47,9 @@ public class LoanInstallmentController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error")
     })
-    public ResponseEntity<List<LoanInstallment>> listInstallmentsByLoanId(@PathVariable Long loanId,
-                                                                          Authentication authentication) {
+    public ResponseEntity<List<LoanInstallment>> listInstallmentsByLoanId(@PathVariable Long loanId) {
         Loan loan = loanService.findById(loanId);
-        authorizationComponent.checkAccess(loan.getCustomer().getId(), authentication);
+        authorizationComponent.checkAccess(loan.getCustomer().getId());
         log.debug("GET /api/v1/loans/installments/{loanId}: listInstallmentsByLoanId({})", loanId);
         List<LoanInstallment> loanInstallments = loanInstallmentService.listInstallmentsByLoanId(loanId);
         log.debug("GET /api/v1/loans/installments/{loanId}: " + CreditManagerConstants.RETURNING_RESPONSE, loanInstallments);

@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,9 +61,8 @@ public class LoanController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error")
     })
-    public ResponseEntity<CreateLoanResponse> createLoan(@Valid @NotNull @RequestBody CreateLoanRequest request,
-                                                         Authentication authentication) {
-        authorizationComponent.checkAccess(request.getCustomerId(), authentication);
+    public ResponseEntity<CreateLoanResponse> createLoan(@Valid @NotNull @RequestBody CreateLoanRequest request) {
+        authorizationComponent.checkAccess(request.getCustomerId());
         CreateLoanResponse response;
         CreateLoanResponse.CreateLoanResponseBuilder builder = CreateLoanResponse.builder();
         try {
@@ -94,9 +92,8 @@ public class LoanController {
     })
     public ResponseEntity<List<Loan>> listLoans(@PathVariable Long customerId,
                                                 @RequestParam(required = false) Integer numberOfInstallments,
-                                                @RequestParam(required = false) Boolean isPaid,
-                                                Authentication authentication) {
-        authorizationComponent.checkAccess(customerId, authentication);
+                                                @RequestParam(required = false) Boolean isPaid) {
+        authorizationComponent.checkAccess(customerId);
         log.debug("GET /api/v1/loans/{customerId}: listLoans({},{},{})", customerId, numberOfInstallments, isPaid);
         List<Loan> loansList = loanService.listLoans(customerId, numberOfInstallments, isPaid);
         log.debug("GET /api/v1/loans/{customerId}: " + CreditManagerConstants.RETURNING_RESPONSE, loansList);
@@ -111,10 +108,9 @@ public class LoanController {
             @ApiResponse(responseCode = "404", description = "Not found"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error")
     })
-    public ResponseEntity<PayLoanResponse> payLoan(@Valid @NotNull @RequestBody PayLoanRequest request,
-                                                   Authentication authentication) {
+    public ResponseEntity<PayLoanResponse> payLoan(@Valid @NotNull @RequestBody PayLoanRequest request) {
         Loan loan = loanService.findById(request.getLoanId());
-        authorizationComponent.checkAccess(loan.getCustomer().getId(), authentication);
+        authorizationComponent.checkAccess(loan.getCustomer().getId());
         PayLoanResponse response;
         PayLoanResponse.PayLoanResponseBuilder builder = PayLoanResponse.builder();
         try {

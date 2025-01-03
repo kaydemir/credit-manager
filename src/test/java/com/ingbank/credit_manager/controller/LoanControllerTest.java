@@ -8,7 +8,6 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -35,7 +34,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 
 class LoanControllerTest {
 
@@ -64,9 +62,7 @@ class LoanControllerTest {
         mockLoan.setId(1L);
 
         when(loanService.createLoan(any(CreateLoanRequest.class))).thenReturn(mockLoan);
-        Authentication mockAuth = mock(Authentication.class);
-        when(mockAuth.getName()).thenReturn("admin");
-        ResponseEntity<CreateLoanResponse> response = subject.createLoan(createLoanRequest, mockAuth);
+        ResponseEntity<CreateLoanResponse> response = subject.createLoan(createLoanRequest);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -75,12 +71,10 @@ class LoanControllerTest {
 
     @Test
     void testCreateLoanWhenCreditLimitExceeded() {
-        Authentication mockAuth = mock(Authentication.class);
-        when(mockAuth.getName()).thenReturn("admin");
         when(loanService.createLoan(any(CreateLoanRequest.class)))
                 .thenThrow(new CustomerCreditLimitExceededException("Credit limit exceeded"));
 
-        ResponseEntity<CreateLoanResponse> response = subject.createLoan(createLoanRequest, mockAuth);
+        ResponseEntity<CreateLoanResponse> response = subject.createLoan(createLoanRequest);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertTrue(response.getBody().getErrorMessage().contains("Credit limit exceeded"));
@@ -91,11 +85,9 @@ class LoanControllerTest {
         Loan mockLoan = new Loan();
         mockLoan.setId(1L);
 
-        Authentication mockAuth = mock(Authentication.class);
-        when(mockAuth.getName()).thenReturn("admin");
         when(loanService.listLoans(anyLong(), anyInt(), anyBoolean())).thenReturn(List.of(mockLoan));
 
-        ResponseEntity<List<Loan>> response = subject.listLoans(1L, 10, true, mockAuth);
+        ResponseEntity<List<Loan>> response = subject.listLoans(1L, 10, true);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertFalse(Objects.requireNonNull(response.getBody()).isEmpty());
@@ -110,9 +102,7 @@ class LoanControllerTest {
         loan.setId(1L);
         loan.setCustomer(new Customer());
         when(loanService.findById(1L)).thenReturn(loan);
-        Authentication mockAuth = mock(Authentication.class);
-        when(mockAuth.getName()).thenReturn("admin");
-        ResponseEntity<PayLoanResponse> response = subject.payLoan(payLoanRequest, mockAuth);
+        ResponseEntity<PayLoanResponse> response = subject.payLoan(payLoanRequest);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(Objects.requireNonNull(response.getBody()).getPaymentResult().isLoanFullyPaid());
@@ -126,9 +116,7 @@ class LoanControllerTest {
         loan.setId(1L);
         loan.setCustomer(new Customer());
         when(loanService.findById(1L)).thenReturn(loan);
-        Authentication mockAuth = mock(Authentication.class);
-        when(mockAuth.getName()).thenReturn("admin");
-        ResponseEntity<PayLoanResponse> response = subject.payLoan(payLoanRequest, mockAuth);
+        ResponseEntity<PayLoanResponse> response = subject.payLoan(payLoanRequest);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertTrue(Objects.requireNonNull(response.getBody()).getErrorMessage().contains("Loan is already fully paid"));
@@ -142,9 +130,7 @@ class LoanControllerTest {
         loan.setId(1L);
         loan.setCustomer(new Customer());
         when(loanService.findById(1L)).thenReturn(loan);
-        Authentication mockAuth = mock(Authentication.class);
-        when(mockAuth.getName()).thenReturn("admin");
-        ResponseEntity<PayLoanResponse> response = subject.payLoan(payLoanRequest, mockAuth);
+        ResponseEntity<PayLoanResponse> response = subject.payLoan(payLoanRequest);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertTrue(Objects.requireNonNull(response.getBody()).getErrorMessage().contains("Installments cannot be paid"));
@@ -158,9 +144,7 @@ class LoanControllerTest {
         loan.setId(1L);
         loan.setCustomer(new Customer());
         when(loanService.findById(1L)).thenReturn(loan);
-        Authentication mockAuth = mock(Authentication.class);
-        when(mockAuth.getName()).thenReturn("admin");
-        ResponseEntity<PayLoanResponse> response = subject.payLoan(payLoanRequest, mockAuth);
+        ResponseEntity<PayLoanResponse> response = subject.payLoan(payLoanRequest);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertTrue(Objects.requireNonNull(response.getBody()).getErrorMessage().contains("Loan not found"));

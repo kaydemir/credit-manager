@@ -24,7 +24,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 
 class LoanInstallmentControllerTest {
 
@@ -63,9 +62,7 @@ class LoanInstallmentControllerTest {
         loan.setId(1L);
         loan.setCustomer(new Customer());
         when(loanService.findById(1L)).thenReturn(loan);
-        Authentication mockAuth = mock(Authentication.class);
-        when(mockAuth.getName()).thenReturn("admin");
-        ResponseEntity<List<LoanInstallment>> response = loanInstallmentController.listInstallmentsByLoanId(1L, mockAuth);
+        ResponseEntity<List<LoanInstallment>> response = loanInstallmentController.listInstallmentsByLoanId(1L);
 
         assertNotNull(response.getBody());
         assertEquals(2, response.getBody().size());
@@ -83,9 +80,7 @@ class LoanInstallmentControllerTest {
         loan.setId(1L);
         loan.setCustomer(new Customer());
         when(loanService.findById(1L)).thenReturn(loan);
-        Authentication mockAuth = mock(Authentication.class);
-        when(mockAuth.getName()).thenReturn("admin");
-        ResponseEntity<List<LoanInstallment>> response = loanInstallmentController.listInstallmentsByLoanId(1L, mockAuth);
+        ResponseEntity<List<LoanInstallment>> response = loanInstallmentController.listInstallmentsByLoanId(1L);
 
         assertNotNull(response.getBody());
         assertTrue(response.getBody().isEmpty());

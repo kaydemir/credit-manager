@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({AccessDeniedException.class})
     public ResponseEntity<Object> handleRoleException(final AccessDeniedException ex) {
         log.error("Access denied - {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User does not have the permission to invoke this API: " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Insufficient permission: " + ex.getMessage());
     }
 
     @ExceptionHandler(BadCredentialsException.class)

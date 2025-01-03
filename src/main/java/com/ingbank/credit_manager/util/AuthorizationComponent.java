@@ -5,6 +5,7 @@ import com.ingbank.credit_manager.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,7 +18,8 @@ public class AuthorizationComponent {
         this.customerService = customerService;
     }
 
-    public void checkAccess(Long customerId, Authentication authentication) {
+    public void checkAccess(Long customerId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
